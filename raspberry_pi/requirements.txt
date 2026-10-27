@@ -1,0 +1,30 @@
+# Flask + Gunicorn: pinned to known-working versions.
+Flask==3.0.3
+gunicorn==22.0.0
+
+# numpy: intentionally UNPINNED. Pinning to 1.26.4 previously forced a
+# from-source build (10.8MB .tar.gz) because no prebuilt wheel existed for
+# this Python version, and that pinned version doesn't support newer
+# Python releases anyway. Leaving unpinned lets pip pull a current wheel.
+numpy
+
+# Raspberry Pi GPIO
+RPi.GPIO==0.7.1
+
+# Adafruit CircuitPython / Blinka stack (provides `board`, `busio`).
+# UNPINNED for the same reason as numpy: pinned versions here previously
+# no longer existed on PyPI (superseded by newer releases).
+Adafruit-Blinka
+adafruit-circuitpython-busdevice
+adafruit-circuitpython-tmp117
+adafruit-circuitpython-bme680
+adafruit-circuitpython-vl53l4cd
+adafruit-circuitpython-ads1x15
+
+# HX711 load cell amplifier driver.
+# NOTE: multiple different `hx711` packages exist on PyPI with different
+# APIs. This project's app.py calls .reset(), .get_raw_data(n), and
+# .tare() on each scale object — if a fresh install pulls a package
+# without these exact methods, pin it explicitly once you find the right
+# one (check PyPI for the version that matches this API).
+hx711

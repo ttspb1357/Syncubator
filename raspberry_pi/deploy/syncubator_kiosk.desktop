@@ -1,0 +1,32 @@
+[Desktop Entry]
+Type=Application
+Name=Syncubator Kiosk
+# --ignore-certificate-errors: the Pi serves the app over a self-signed TLS
+# certificate (see docs/deployment.md). Without this flag,
+# Chromium stops on a security interstitial with no way to click through in
+# --kiosk mode. This is an accepted trust decision for a LAN-only device the
+# operator controls and already trusts — the same cert is pinned into the
+# native Flutter builds (lib/utils/secure_http_client_io.dart).
+# Binary is `chromium` on this Debian/Raspberry Pi OS build, not
+# `chromium-browser` (package name varies by OS image/version — check with
+# `which chromium chromium-browser` if this stops working after an update).
+#
+# --ozone-platform=x11: the compositor here (labwc) is Wayland. Native
+# Wayland touch handling only delivers taps, not drag/scroll motion, to
+# the page (confirmed with `libinput debug-events` showing clean kernel-
+# level TOUCH_MOTION the whole time). Forcing X11/XWayland was tried as a
+# fix but made NO difference -- XWayland's virtual touch device received
+# zero events during a drag, same as native Wayland. The actual working
+# fix lives in the app itself: floating up/down scroll-arrow buttons
+# (lib/widgets/scrollable_page.dart) that scroll via tap, sidestepping
+# the broken drag path entirely. This flag is kept because it caused no
+# regression and taps still work correctly through it either way.
+#
+# --password-store=basic: without this, Chromium tries to use the OS
+# keyring (libsecret/gnome-keyring) for its internal credential storage
+# and blocks kiosk startup behind an "Unlock Keyring" dialog with no way
+# to dismiss it in --kiosk mode. This tells Chromium to use a plain
+# in-memory/file store instead, skipping the keyring entirely -- fine
+# for a kiosk that only ever visits one page and saves no real passwords.
+Exec=chromium --kiosk --noerrdialogs --disable-infobars --check-for-update-interval=31536000 --ignore-certificate-errors --incognito --password-store=basic --ozone-platform=x11 https://127.0.0.1
+X-GNOME-Autostart-enabled=true

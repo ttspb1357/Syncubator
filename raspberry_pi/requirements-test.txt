@@ -1,0 +1,5 @@
+# Enough to run the backend tests on any computer (Windows, macOS or Linux).
+# The hardware libraries are replaced by fakes in tests/conftest.py, so none of them are needed here.
+Flask==3.0.3
+numpy
+pytest

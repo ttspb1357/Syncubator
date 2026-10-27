@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Syncubator</title>
+<meta name="description" content="Syncubator is a low-cost neonatal incubator developed at IIT Mandi: steady warmth, humidity and oxygen, a medical-style alarm system, and one application for the incubator's screen, a phone and the web.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<style>
+  :root {
+    --ground: #F3F8F7;
+    --plate: #FFFFFF;
+    --plate-2: #E9F2F0;
+    --ink: #10283A;
+    --ink-2: #2E4A5C;
+    --muted: #5B7183;
+    --line: #D6E3E1;
+    --accent: #0E8C7F;
+    --accent-ink: #FFFFFF;
+    --accent-soft: #DCF1EC;
+    --hi: #19B3A3;
+    --sky: #E4F0F8;
+    --caution: #B7791F;
+    --caution-soft: #FBF2DF;
+    --alarm: #D64545;
+    --alarm-soft: #FBE4E4;
+    --glow: rgba(14, 140, 127, .22);
+    --shadow: 0 24px 60px -30px rgba(16, 40, 58, .35);
+    --display: "Manrope", "Helvetica Neue", Arial, sans-serif;
+    --body: "IBM Plex Sans", "Segoe UI", Roboto, system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0A1A1E; --plate: #10242A; --plate-2: #152D34;
+      --ink: #E6F2F0; --ink-2: #C1D5D2; --muted: #8FA8A9; --line: #22393F;
+      --accent: #3FC7B7; --accent-ink: #05201C; --accent-soft: #123A38;
+      --hi: #62DACB; --sky: #0F2A3A; --caution: #E0A648; --caution-soft: #2C2412;
+      --alarm: #F0665C; --alarm-soft: #3A1A18; --glow: rgba(63, 199, 183, .18);
+      --shadow: 0 24px 60px -30px rgba(0, 0, 0, .75);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0A1A1E; --plate: #10242A; --plate-2: #152D34;
+    --ink: #E6F2F0; --ink-2: #C1D5D2; --muted: #8FA8A9; --line: #22393F;
+    --accent: #3FC7B7; --accent-ink: #05201C; --accent-soft: #123A38;
+    --hi: #62DACB; --sky: #0F2A3A; --caution: #E0A648; --caution-soft: #2C2412;
+    --alarm: #F0665C; --alarm-soft: #3A1A18; --glow: rgba(63, 199, 183, .18);
+    --shadow: 0 24px 60px -30px rgba(0, 0, 0, .75);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: var(--body); font-size: 16px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  img, video { max-width: 100%; display: block; }
+  a { color: var(--accent); }
+  h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; text-wrap: balance; letter-spacing: -.015em; }
+  h1 { font-size: clamp(2.2rem, 4.8vw, 3.7rem); font-weight: 800; }
+  h2 { font-size: clamp(1.6rem, 3vw, 2.3rem); font-weight: 700; }
+  h3 { font-size: 1.15rem; font-weight: 700; }
+  p { margin: 0; }
+  .wrap { width: min(1120px, 100%); margin-inline: auto; padding-inline: 20px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); font-weight: 500;
+  }
+  .lede { font-size: 1.12rem; color: var(--ink-2); max-width: 36em; }
+  .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  :focus-visible { outline: 2px solid var(--hi); outline-offset: 3px; border-radius: 4px; }
+  button { font: inherit; }
+
+  /* Top bar */
+  .bar {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+    background: color-mix(in srgb, var(--ground) 88%, transparent);
+    backdrop-filter: blur(10px); border-bottom: 1px solid var(--line);
+  }
+  .bar .wrap { display: flex; align-items: center; gap: 24px; min-height: 66px; }
+  .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-family: var(--display); font-weight: 800; font-size: 1.15rem; letter-spacing: -.01em; }
+  .brand img { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--line); background: #fff; }
+  .nav { display: flex; gap: 22px; margin-left: 8px; }
+  .nav a { color: var(--muted); text-decoration: none; font-size: .95rem; font-weight: 500; }
+  .nav a:hover { color: var(--ink); }
+  .spacer { flex: 1; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; border-radius: 999px;
+    font-family: var(--body); font-weight: 600; font-size: .95rem; text-decoration: none; border: 1px solid transparent;
+    transition: transform .12s ease, background .12s ease, border-color .12s ease; cursor: pointer;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); }
+  .btn-primary:hover { background: color-mix(in srgb, var(--accent) 86%, black); }
+  .btn-ghost { color: var(--ink); border-color: var(--line); background: var(--plate); }
+  .btn-ghost:hover { border-color: var(--accent); }
+  .btn svg { width: 16px; height: 16px; }
+  .btn-sm { padding: 7px 14px; font-size: .85rem; }
+  .btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
+
+  /* Hero */
+  .hero { padding-block: 56px 40px; position: relative; }
+  .hero .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 44px; align-items: center; }
+  .hero-copy { display: grid; gap: 22px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; }
+  .hero-media { display: grid; gap: 14px; position: relative; isolation: isolate; }
+  /* Breathing glow behind the media: swells and fades at a resting respiratory pace */
+  .hero-media::before {
+    content: ""; position: absolute; z-index: -1; inset: -8% -10%; border-radius: 50%;
+    background: radial-gradient(closest-side, var(--glow), transparent 72%);
+    filter: blur(18px); animation: breathe 4.6s ease-in-out infinite; pointer-events: none;
+  }
+  @keyframes breathe { 0%, 100% { transform: scale(.92); opacity: .55; } 50% { transform: scale(1.04); opacity: 1; } }
+
+  .player {
+    position: relative; border-radius: 18px; overflow: hidden; background: #FFFFFF;
+    border: 1px solid var(--line); box-shadow: var(--shadow); aspect-ratio: 16 / 10; max-width: 100%;
+    cursor: pointer;
+  }
+  .player video { width: 100%; height: 100%; object-fit: contain; background: #FFFFFF; }
+  .player .poster {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #FFFFFF;
+    transition: opacity .3s ease, transform .25s ease-out; will-change: transform;
+  }
+  .player.playing .poster { opacity: 0; pointer-events: none; }
+  .play {
+    position: absolute; inset: 0; margin: auto; width: 76px; height: 76px; border-radius: 50%; border: 0;
+    background: rgba(16, 40, 58, .82); color: #fff; display: grid; place-items: center; cursor: pointer;
+    box-shadow: 0 10px 30px -10px rgba(16,40,58,.6); transition: transform .15s ease, background .15s ease, opacity .2s ease;
+  }
+  .play:hover { transform: scale(1.05); background: var(--accent); }
+  .play svg { width: 30px; height: 30px; margin-left: 4px; }
+  .player.playing .play { opacity: 0; pointer-events: none; }
+  .player.playing:hover .play, .player.playing:focus-within .play { opacity: 1; pointer-events: auto; }
+  .player.playing .play svg { margin-left: 0; }
+  .player.novideo .play { display: none; }
+  .player.novideo { cursor: default; }
+
+  /* Readouts: example values under the hero media */
+  .readouts {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    background: var(--line); border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+  }
+  .readout { padding: 12px 14px; background: var(--plate); display: grid; gap: 2px; }
+  .readout .k { font-family: var(--mono); font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .readout .v { font-family: var(--mono); font-size: 1.15rem; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .readout .v small { font-size: .7rem; color: var(--muted); margin-left: 3px; }
+  .readouts-note { font-family: var(--mono); font-size: .68rem; color: var(--muted); letter-spacing: .06em; text-align: right; }
+
+  /* ECG divider */
+  .ecg { display: block; width: 100%; height: 54px; color: var(--accent); opacity: .55; }
+  .ecg path { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
+  .ecg .beat { stroke-dasharray: 1200; stroke-dashoffset: 1200; animation: trace 6s linear infinite; }
+  @keyframes trace { to { stroke-dashoffset: 0; } }
+
+  /* Sections */
+  section { padding-block: 64px; }
+  section + section { border-top: 1px solid var(--line); }
+  .sec-head { display: grid; gap: 10px; margin-bottom: 34px; max-width: 42em; }
+
+  .why { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .why > div { display: grid; gap: 10px; background: var(--plate); border: 1px solid var(--line); border-radius: 16px; padding: 24px; align-content: start; }
+  .why h3 { font-size: 1.05rem; }
+  .why p { color: var(--ink-2); font-size: .95rem; }
+  .why .n { font-family: var(--mono); color: var(--accent); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; }
+
+  .sys { display: grid; gap: 28px; }
+  .sys-card {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: center;
+    background: var(--plate); border: 1px solid var(--line); border-radius: 20px; padding: 32px;
+  }
+  .sys-card:nth-child(even) .media { order: -1; }
+  .sys-copy { display: grid; gap: 12px; }
+  .sys-copy p { color: var(--ink-2); }
+  .facts { display: grid; gap: 10px; margin: 8px 0 0; padding: 0; list-style: none; }
+  .facts li { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: baseline; font-size: .95rem; }
+  .facts .f { font-family: var(--mono); color: var(--accent); font-size: .85rem; white-space: nowrap; background: var(--accent-soft); padding: 2px 8px; border-radius: 6px; }
+
+  .media { display: grid; gap: 12px; margin: 0; }
+  .frame { border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: var(--plate-2); }
+  .frame.shot { aspect-ratio: 5 / 3; }
+  .frame.shot img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .frame.render { aspect-ratio: 4 / 3; background: #FFFFFF; padding: 10px; }
+  .frame.render img { width: 100%; height: 100%; object-fit: contain; }
+  .media figcaption { font-size: .8rem; color: var(--muted); }
+
+  /* Alarm list */
+  .alarm-list { display: grid; gap: 8px; }
+  .alarm-line { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 10px; background: var(--plate-2); border: 1px solid var(--line); font-size: .9rem; }
+  .alarm-line .pri { font-family: var(--mono); font-size: .66rem; letter-spacing: .1em; padding: 3px 8px; border-radius: 999px; font-weight: 500; }
+  .pri.high { background: var(--alarm); color: #fff; }
+  .pri.med  { background: var(--caution); color: #fff; }
+  .pri.low  { background: var(--accent-soft); color: var(--accent); }
+  .alarm-line .t { color: var(--muted); font-family: var(--mono); font-size: .76rem; }
+
+
+  /* Bed height widget */
+  .bed { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; background: var(--plate-2); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+  .bed svg { width: 100%; height: auto; display: block; }
+  .bed .plat { transition: transform 2.4s cubic-bezier(.45,.05,.35,1); transform-origin: 214px 74px; }
+  .bed .meas { transition: transform 2.4s cubic-bezier(.45,.05,.35,1); transform-origin: 60px 104px; }
+  .bed text { font-family: var(--mono); font-size: 6.5px; fill: var(--muted); letter-spacing: .06em; }
+  .bed-ctl { display: grid; gap: 8px; min-width: 150px; }
+  .bed-ctl .k { font-family: var(--mono); font-size: .6rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .bed-ctl .v { font-family: var(--mono); font-size: 1.3rem; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .bed-ctl .v b { font-weight: 500; }
+  .bed-ctl .v small { font-size: .72rem; color: var(--muted); margin-left: 3px; }
+  .bed-ctl .row { display: flex; gap: 8px; }
+  .bed-ctl .st { font-family: var(--mono); font-size: .68rem; color: var(--muted); min-height: 1.2em; }
+  .bed.moving .bed-ctl .st { color: var(--accent); }
+  .bed.moving .motor { animation: spin 1s linear infinite; transform-origin: center; transform-box: fill-box; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+
+  .status { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .status-col { background: var(--plate); border: 1px solid var(--line); border-radius: 16px; padding: 24px; display: grid; gap: 14px; align-content: start; }
+  .status-col ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+  .status-col li { display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start; font-size: .95rem; color: var(--ink-2); }
+  .status-col li svg { width: 18px; height: 18px; margin-top: 3px; }
+  .ok { color: var(--accent); }
+  .next { color: var(--muted); }
+
+  .team { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: start; }
+  .team p { color: var(--ink-2); }
+
+  .notice { background: var(--caution-soft); border-top: 1px solid var(--line); }
+  .notice .wrap { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; padding-block: 24px; }
+  .notice svg { width: 22px; height: 22px; color: var(--caution); margin-top: 2px; }
+  .notice p { font-size: .95rem; color: var(--ink-2); max-width: 70em; }
+  .notice strong { color: var(--ink); }
+
+  footer { border-top: 1px solid var(--line); }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; padding-block: 26px; font-size: .88rem; color: var(--muted); }
+  footer a { color: var(--muted); text-decoration: none; }
+  footer a:hover { color: var(--ink); }
+
+  @media (max-width: 860px) {
+    .nav { display: none; }
+    .hero .wrap, .sys-card, .team, .status { grid-template-columns: 1fr; }
+    .sys-card:nth-child(even) .media { order: 0; }
+    .why { grid-template-columns: 1fr; }
+    .readouts { grid-template-columns: repeat(2, 1fr); }
+    .bed { grid-template-columns: 1fr; }
+    section { padding-block: 48px; }
+    .sys-card { padding: 22px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .btn, .play, .poster, .bed .plat, .bed .meas { transition: none; }
+    .ecg .beat, .hero-media::before, .bed.moving .motor { animation: none; }
+    .ecg .beat { stroke-dashoffset: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Syncubator home">
+      <img src="assets/logo-mark.png" alt="" width="34" height="34">
+      Syncubator
+    </a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#how">How it works</a>
+      <a href="#status">Status</a>
+      <a href="#team">Team</a>
+    </nav>
+    <span class="spacer"></span>
+    <a class="btn btn-primary" href="https://app.syncubator.in">
+      Log in
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <span class="eyebrow">IIT Mandi · Where care meets innovation</span>
+        <h1>A neonatal incubator whose every decision can be read.</h1>
+        <p class="lede">Syncubator is a low-cost neonatal incubator. It holds warmth, humidity and oxygen at the levels a clinician chooses, watches the baby's environment and vital signs around the clock, and shows the same live picture on the incubator's own screen, a phone, or this website.</p>
+        <div class="cta">
+          <a class="btn btn-primary" href="https://app.syncubator.in">Log in to the dashboard</a>
+          <a class="btn btn-ghost" href="#how">How it works</a>
+        </div>
+      </div>
+
+      <div class="hero-media">
+        <div class="player" id="player" role="group" aria-label="Incubator turntable video">
+          <video id="turntable" muted loop playsinline preload="metadata" poster="assets/turntable-poster.jpg">
+            <source id="turntable-src" src="assets/incubator-turntable.mp4" type="video/mp4">
+          </video>
+          <img class="poster" id="poster" src="assets/turntable-poster.jpg" alt="Syncubator incubator with its canopy closed: the touchscreen at the front, side access ports and the oxygen regulator" width="1440" height="900">
+          <button class="play" id="playbtn" type="button" aria-label="Play turntable video" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path class="ico-play" d="M7 4.5v15l12-7.5z"/><path class="ico-pause" d="M6 4.5h4.5v15H6zM13.5 4.5H18v15h-4.5z" style="display:none"/></svg>
+          </button>
+        </div>
+
+        <div class="readouts" aria-label="Example readings">
+          <div class="readout"><span class="k">Air temp</span><span class="v">36.5<small>°C</small></span></div>
+          <div class="readout"><span class="k">Humidity</span><span class="v">55<small>% RH</small></span></div>
+          <div class="readout"><span class="k">Oxygen</span><span class="v">21.0<small>%</small></span></div>
+          <div class="readout"><span class="k">Weight</span><span class="v">2 310<small>g</small></span></div>
+        </div>
+        <span class="readouts-note">Example values, not live data</span>
+      </div>
+    </div>
+    <svg class="ecg" viewBox="0 0 1200 54" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 30 H220 l10 0 8-6 8 6 h40 l6-14 8 30 8-22 6 6 h60 l8-8 8 8 h90 l10 0 8-6 8 6 h40 l6-14 8 30 8-22 6 6 h60 l8-8 8 8 h90 l10 0 8-6 8 6 h40 l6-14 8 30 8-22 6 6 h60 l8-8 8 8 H1200" opacity=".25"/>
+      <path class="beat" d="M0 30 H220 l10 0 8-6 8 6 h40 l6-14 8 30 8-22 6 6 h60 l8-8 8 8 h90 l10 0 8-6 8 6 h40 l6-14 8 30 8-22 6 6 h60 l8-8 8 8 h90 l10 0 8-6 8 6 h40 l6-14 8 30 8-22 6 6 h60 l8-8 8 8 H1200"/>
+    </svg>
+  </section>
+
+  <section id="why">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Why build another incubator</span>
+        <h2>The infants who need one most are often where one is hardest to afford.</h2>
+      </div>
+      <div class="why">
+        <div>
+          <span class="n">Physiology</span>
+          <h3>Preterm infants lose heat faster than they can make it.</h3>
+          <p>A large surface area for their mass, little fat and an immature thermoregulatory response mean that in an ordinary room a preterm or low-birth-weight infant cools quickly, and hypothermia in the first hours of life is strongly associated with mortality.</p>
+        </div>
+        <div>
+          <span class="n">Cost</span>
+          <h3>Certified incubators do this well — at a price many district hospitals cannot meet.</h3>
+          <p>A warmed, humidified, oxygen-enriched microenvironment held within limits, without continuous manual attention, is exactly what commercial incubators provide. Their cost keeps them out of the wards that need them.</p>
+        </div>
+        <div>
+          <span class="n">Upkeep</span>
+          <h3>Built to be looked after where it is used.</h3>
+          <p>Syncubator is designed so that a hospital's own staff can understand, adjust and repair it, without waiting on a distant manufacturer for every fault.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">How it works</span>
+        <h2>Three subsystems, one shared view.</h2>
+        <p class="lede">Climate and oxygen control, alarms that keep watch whether or not anyone is looking, and a single application that reaches the incubator from wherever staff are.</p>
+      </div>
+      <div class="sys">
+        <article class="sys-card">
+          <div class="sys-copy">
+            <span class="eyebrow">Climate &amp; oxygen</span>
+            <h3>Steady warmth, humidity and oxygen.</h3>
+            <p>The clinician sets the air temperature, humidity and oxygen level, and the incubator keeps them there on its own: warming, humidifying and adding oxygen as needed, so the environment settles gently instead of swinging up and down.</p>
+            <ul class="facts">
+              <li><span class="f">Clinician-set</span><span>Targets are chosen and changed from any screen.</span></li>
+              <li><span class="f">Hands-off</span><span>No constant manual adjustment; control can be switched off at any time.</span></li>
+              <li><span class="f">Remembers</span><span>Settings and alarm limits are kept through a power cut and restored when power returns.</span></li>
+            </ul>
+          </div>
+          <figure class="media">
+            <div class="frame shot"><img src="assets/app-climate.png" alt="Climate and oxygen cards in the Syncubator application showing temperature, humidity, pressure and the oxygen valve level"></div>
+            <figcaption>Climate and oxygen cards as shown on the incubator's touchscreen.</figcaption>
+          </figure>
+        </article>
+
+        <article class="sys-card">
+          <div class="sys-copy">
+            <span class="eyebrow">Alarm system</span>
+            <h3>Alarms that live on the incubator, not in the app.</h3>
+            <p>Alarms are checked on the incubator itself and sound its own buzzer. If a browser closes, a phone sleeps or the Wi-Fi drops, the alarm still sounds. Every condition is watched continuously and follows medical alarm conventions rather than a plain threshold test.</p>
+            <ul class="facts">
+              <li><span class="f">3 priorities</span><span>High, medium and low, each with its own tone and banner colour.</span></li>
+              <li><span class="f">10 s onset</span><span>A breach must persist before it alarms, so a passing reading does not wake the ward.</span></li>
+              <li><span class="f">Latching</span><span>An alarm that clears on its own stays displayed until acknowledged. Silence lasts two minutes, then re-sounds.</span></li>
+            </ul>
+          </div>
+          <figure class="media">
+            <div class="frame shot"><img src="assets/app-alarm.png" alt="Syncubator application with a high-priority 'Air temperature low' alarm banner across the top"></div>
+            <div class="alarm-list">
+              <div class="alarm-line"><span class="pri high">HIGH</span><span>Air temperature low</span><span class="t">latched</span></div>
+              <div class="alarm-line"><span class="pri med">MED</span><span>Heater on, temperature not rising</span><span class="t">runaway check</span></div>
+              <div class="alarm-line"><span class="pri low">LOW</span><span>Bed distance sensor not responding</span><span class="t">sensor fault</span></div>
+            </div>
+            <figcaption>Three of the alarm conditions, with their priorities.</figcaption>
+          </figure>
+        </article>
+
+        <article class="sys-card">
+          <div class="sys-copy">
+            <span class="eyebrow">Application</span>
+            <h3>One application. The incubator's screen, a phone, this website.</h3>
+            <p>The same application runs full-screen on the incubator's touchscreen, as an Android app, and here on the web behind a login. Every screen shows live readings, the camera and the same controls: targets, oxygen level, bed height, alarm acknowledgement and limits.</p>
+            <ul class="facts">
+              <li><span class="f">Live</span><span>Every reading refreshes each second, over a secure connection.</span></li>
+              <li><span class="f">Login</span><span>Remote access is restricted to approved e-mail addresses with a one-time code.</span></li>
+              <li><span class="f">Honest</span><span>If a reading fails it is shown as a fault, never as a believable number.</span></li>
+            </ul>
+          </div>
+          <figure class="media">
+            <div class="frame render"><img src="assets/incubator-open.jpg" alt="Syncubator with its canopy raised, showing the mattress platform, side ports and the oxygen supply"></div>
+            <div class="bed" id="bed">
+              <svg viewBox="0 0 260 122" aria-hidden="true">
+                <!-- enclosure -->
+                <rect x="14" y="10" width="232" height="104" rx="10" fill="none" stroke="var(--line)" stroke-width="1.5"/>
+                <!-- base plate -->
+                <line x1="30" y1="104" x2="230" y2="104" stroke="var(--line)" stroke-width="1.5"/>
+                <!-- height sensor in the base, under the free end -->
+                <rect x="52" y="104" width="16" height="6" rx="2" fill="var(--accent)"/>
+                <text x="60" y="118" text-anchor="middle">sensor</text>
+                <!-- lift motor at the free end -->
+                <g class="motor"><circle cx="30" cy="88" r="6" fill="none" stroke="var(--muted)" stroke-width="1.5"/><path d="M24 88h12M30 82v12" stroke="var(--muted)" stroke-width="1.5"/></g>
+                <!-- measurement line: sensor up to the platform underside (stretches as the end rises) -->
+                <g class="meas" id="bed-meas">
+                  <line x1="60" y1="104" x2="60" y2="74" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="2 2"/>
+                </g>
+                <!-- platform + mattress: pivots about the hinge at the right-hand end -->
+                <g class="plat" id="bed-plat">
+                  <rect x="40" y="70" width="176" height="5" rx="2" fill="var(--muted)"/>
+                  <rect x="46" y="58" width="164" height="12" rx="5" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.2"/>
+                  <ellipse cx="86" cy="58" rx="22" ry="6" fill="var(--plate)" stroke="var(--accent)" stroke-width="1.2"/>
+                </g>
+                <!-- hinge -->
+                <circle cx="214" cy="74" r="4" fill="var(--plate)" stroke="var(--ink-2)" stroke-width="1.6"/>
+                <text x="214" y="86" text-anchor="middle">hinge</text>
+              </svg>
+              <div class="bed-ctl">
+                <span class="k">Mattress height</span>
+                <span class="v"><b id="bed-dist">11.6</b><small>cm</small></span>
+                <div class="row">
+                  <button class="btn btn-ghost btn-sm" id="bed-up" type="button">Raise</button>
+                  <button class="btn btn-ghost btn-sm" id="bed-down" type="button" disabled>Lower</button>
+                </div>
+                <span class="st" id="bed-st">Lowered · ready to raise</span>
+              </div>
+            </div>
+            <figcaption>Canopy raised for access. The mattress tilts up and down at the touch of a button, and only moves within its safe range. Try it.</figcaption>
+          </figure>
+        </article>
+      </div>
+    </div>
+  </section>
+
+
+  <section id="status">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Where it stands</span>
+        <h2>Operating on the assembled unit; more bedside monitoring next.</h2>
+      </div>
+      <div class="status">
+        <div class="status-col">
+          <h3>Working now</h3>
+          <ul>
+            <li><svg viewBox="0 0 18 18" fill="none" class="ok"><circle cx="9" cy="9" r="8" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 9.5l2.3 2.3L12.5 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Temperature, humidity and oxygen control from operator set points</li>
+            <li><svg viewBox="0 0 18 18" fill="none" class="ok"><circle cx="9" cy="9" r="8" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 9.5l2.3 2.3L12.5 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Alarms with a short confirmation delay, latching, silence and a buzzer, tested on the incubator</li>
+            <li><svg viewBox="0 0 18 18" fill="none" class="ok"><circle cx="9" cy="9" r="8" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 9.5l2.3 2.3L12.5 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Pulse oximetry: oxygen saturation and pulse rate on every screen, with their own alarms</li>
+            <li><svg viewBox="0 0 18 18" fill="none" class="ok"><circle cx="9" cy="9" r="8" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 9.5l2.3 2.3L12.5 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Calibrated weight, oxygen and mattress-height readings</li>
+            <li><svg viewBox="0 0 18 18" fill="none" class="ok"><circle cx="9" cy="9" r="8" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 9.5l2.3 2.3L12.5 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>The incubator's touchscreen, an Android app and this web dashboard, all showing the same view</li>
+            <li><svg viewBox="0 0 18 18" fill="none" class="ok"><circle cx="9" cy="9" r="8" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 9.5l2.3 2.3L12.5 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Settings that survive a power cut; recovers on its own after a restart</li>
+          </ul>
+        </div>
+        <div class="status-col">
+          <h3>Next</h3>
+          <ul>
+            <li><svg viewBox="0 0 18 18" fill="none" class="next"><circle cx="9" cy="9" r="8" stroke="currentColor" stroke-width="1.6" stroke-dasharray="3 2.5"/></svg>Skin-temperature probes, and a mode that regulates warmth to the baby's own skin temperature</li>
+            <li><svg viewBox="0 0 18 18" fill="none" class="next"><circle cx="9" cy="9" r="8" stroke="currentColor" stroke-width="1.6" stroke-dasharray="3 2.5"/></svg>Accuracy check of the oxygen reading against a reference</li>
+            <li><svg viewBox="0 0 18 18" fill="none" class="next"><circle cx="9" cy="9" r="8" stroke="currentColor" stroke-width="1.6" stroke-dasharray="3 2.5"/></svg>Formal evaluation of alarm timing, control settling and weight accuracy</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="team">
+    <div class="wrap">
+      <div class="team">
+        <div class="sec-head" style="margin:0">
+          <span class="eyebrow">Team</span>
+          <h2>Built at IIT Mandi.</h2>
+        </div>
+        <div>
+          <p>Syncubator is developed by a student team at the Indian Institute of Technology Mandi, Kamand, Himachal Pradesh, with faculty mentorship. The alarm system, climate and oxygen control, and the application described on this page are the team's work for the current academic year; the enclosure, canopy and mattress platform form the shared platform on which they run.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="notice" role="note">
+  <div class="wrap">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l9.5 17h-19L12 3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17.3" r="1" fill="currentColor"/></svg>
+    <p><strong>Research prototype.</strong> Syncubator is an engineering project under development at IIT Mandi. It is not a certified medical device, has not been evaluated against IEC 60601 or any regulatory standard, and must not be used for the care of an infant.</p>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Syncubator · Indian Institute of Technology Mandi</span>
+    <span><a href="https://app.syncubator.in">Dashboard login</a> · <a href="#top">Back to top</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- Turntable player: still by default, tap to play / pause ---- */
+  var player = document.getElementById('player');
+  var video  = document.getElementById('turntable');
+  var source = document.getElementById('turntable-src');
+  var poster = document.getElementById('poster');
+  var btn    = document.getElementById('playbtn');
+  var icoPlay  = btn.querySelector('.ico-play');
+  var icoPause = btn.querySelector('.ico-pause');
+
+  function setPlaying(on) {
+    player.classList.toggle('playing', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.setAttribute('aria-label', on ? 'Pause turntable video' : 'Play turntable video');
+    icoPlay.style.display  = on ? 'none' : '';
+    icoPause.style.display = on ? '' : 'none';
+  }
+  function toggle(ev) {
+    if (player.classList.contains('novideo')) return;
+    ev.preventDefault();
+    if (video.paused) {
+      var p = video.play();
+      if (p && p.then) p.then(function () { setPlaying(true); }).catch(function () {});
+      else setPlaying(true);
+    } else {
+      video.pause(); setPlaying(false);
+    }
+  }
+  // Video file not present yet (or unsupported): keep the still, drop the play button.
+  source.addEventListener('error', function () { player.classList.add('novideo'); });
+  video.addEventListener('error',  function () { player.classList.add('novideo'); });
+  player.addEventListener('click', toggle);
+  btn.addEventListener('click', function (ev) { ev.stopPropagation(); toggle(ev); });
+  video.addEventListener('ended', function () { setPlaying(false); });
+
+  // Gentle parallax on the still while the pointer moves over it (fine pointers only).
+  if (!reduced && window.matchMedia('(pointer: fine)').matches) {
+    player.addEventListener('pointermove', function (e) {
+      if (player.classList.contains('playing')) return;
+      var r = player.getBoundingClientRect();
+      var dx = (e.clientX - r.left) / r.width - .5, dy = (e.clientY - r.top) / r.height - .5;
+      poster.style.transform = 'translate(' + (dx * -8).toFixed(1) + 'px,' + (dy * -6).toFixed(1) + 'px) scale(1.03)';
+    });
+    player.addEventListener('pointerleave', function () { poster.style.transform = ''; });
+  }
+
+  /* ---- Bed height demo: raise and lower within the safe range ---- */
+  var bed = document.getElementById('bed'), plat = document.getElementById('bed-plat'), meas = document.getElementById('bed-meas');
+  var dist = document.getElementById('bed-dist'), up = document.getElementById('bed-up'), down = document.getElementById('bed-down'), st = document.getElementById('bed-st');
+  var LOW = 11.6, HIGH = 22.0, d = LOW, moving = false;
+  var HINGE_X = 214, SENSOR_X = 60, REST_GAP = 30;   // SVG units: platform underside sits 30 above the sensor when flat
+  var UNITS_PER_CM = 2.6;                              // diagram scale, not the real geometry
+  function place(cm) {
+    // the free end rises by (cm - LOW) over the sensor; the platform rotates about the hinge to get there
+    var rise = (cm - LOW) * UNITS_PER_CM;
+    var deg = Math.asin(Math.min(1, rise / (HINGE_X - SENSOR_X))) * 180 / Math.PI;
+    // SVG y points down, so a positive rotation about the right-hand hinge lifts the left end
+    plat.style.transform = 'rotate(' + deg.toFixed(2) + 'deg)';
+    meas.style.transform = 'scaleY(' + ((REST_GAP + rise) / REST_GAP).toFixed(3) + ')';
+  }
+  function gate() {
+    up.disabled = moving || !(d >= 8 && d <= 15);
+    down.disabled = moving || !(d > 15 && d <= 25);
+  }
+  function move(target) {
+    if (moving) return;
+    moving = true; bed.classList.add('moving'); gate();
+    st.textContent = (target > d ? 'Tilting up…' : 'Lowering…');
+    var from = d, t0 = performance.now(), T = reduced ? 0 : 2400;
+    place(target);
+    function step(now) {
+      var k = T ? Math.min(1, (now - t0) / T) : 1;
+      var e = 1 - Math.pow(1 - k, 3);
+      dist.textContent = (from + (target - from) * e).toFixed(1);
+      if (k < 1) requestAnimationFrame(step);
+      else {
+        d = target; moving = false; bed.classList.remove('moving'); gate();
+        st.textContent = (d <= 15 ? 'Lowered · ready to raise' : 'Raised · ready to lower');
+      }
+    }
+    requestAnimationFrame(step);
+  }
+  up.addEventListener('click', function () { move(HIGH); });
+  down.addEventListener('click', function () { move(LOW); });
+  place(d); gate();
+
+})();
+</script>
+
+</body>
+</html>

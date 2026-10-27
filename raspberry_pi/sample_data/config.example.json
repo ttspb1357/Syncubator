@@ -1,0 +1,49 @@
+{
+  "alarm_limits": {
+    "air_temp_high": 38.0,
+    "air_temp_low": 30.0,
+    "humidity_high": 85.0,
+    "humidity_low": 30.0,
+    "o2_high": 40.0,
+    "o2_low": 18.0,
+    "pulse_high": 180.0,
+    "pulse_low": 100.0,
+    "skin_temp_high": 37.5,
+    "skin_temp_low": 36.0,
+    "spo2_high": 98.0,
+    "spo2_low": 90.0
+  },
+  "calibration": {
+    "cal_factors": [
+      103.2,
+      109.49,
+      93.19,
+      126.3
+    ],
+    "zero_offsets": [
+      -56439.01,
+      -317680.41,
+      253525.71,
+      -111909.54
+    ]
+  },
+  "climate": {
+    "active_heater": 1,
+    "control_enabled": true,
+    "target_hum": 60.0,
+    "target_temp": 33.5
+  },
+  "lid": {
+    "position": "closed"
+  },
+  "oxygen": {
+    "control_enabled": false,
+    "target_percent": 25.0
+  },
+  "skin": {
+    "monitoring_enabled": true
+  },
+  "spo2": {
+    "monitoring_enabled": false
+  }
+}

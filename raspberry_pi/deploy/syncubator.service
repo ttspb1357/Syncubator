@@ -1,0 +1,37 @@
+[Unit]
+Description=Syncubator Flask Backend
+After=network.target
+
+[Service]
+Type=simple
+# Change to whichever user should run the service; must have access to
+# GPIO/I2C/camera (typically via membership in the gpio, i2c, video groups).
+User=pi
+WorkingDirectory=/home/pi/syncubator_app
+
+# --timeout 60 (was 0, i.e. disabled): gunicorn kills and respawns a
+# worker that stops sending its heartbeat for this long. With it disabled,
+# a wedged worker stayed "active" forever and nothing noticed -- that is
+# exactly how a hung HX711 init froze the whole app (no /status at all,
+# not just no weight) until the load cell was physically reconnected.
+#
+# Note this time allowance also covers worker BOOT, because the heartbeat file is
+# only first written once module import finishes. Measured init_hardware()
+# takes ~11s on this unit, ~8s of which is the four load cells -- so 60s
+# leaves ~5x headroom. That margin is deliberate: the load cells are the
+# historically flaky part, and a cell doing retries must not push boot past
+# the timeout, or this protection would turn into a boot loop and be worse
+# than the hang it exists to catch.
+#
+# This does NOT cut off the long-lived /video_feed MJPEG stream: the
+# gthread worker sends its heartbeat from the accept loop, independently
+# of how long any individual request runs.
+ExecStart=/home/pi/syncubator_app/venv/bin/gunicorn --workers 1 --worker-class gthread --threads 8 --timeout 60 --bind 127.0.0.1:5000 app:app
+
+Restart=on-failure
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,91 @@
+{
+  "alarms": {
+    "highest_priority": "medium",
+    "items": [
+      {
+        "acknowledged": false,
+        "active": true,
+        "id": "humidity_high",
+        "label": "Humidity high",
+        "priority": "medium",
+        "since": 1793123254.0245032,
+        "value": 92.0
+      }
+    ],
+    "sounding": true,
+    "sounding_priority": "medium"
+  },
+  "bed": {
+    "connected": true,
+    "distance": 18.2,
+    "moving": false,
+    "status": "idle"
+  },
+  "climate": {
+    "active_heater": 1,
+    "control_enabled": true,
+    "heater_on": false,
+    "humidifier_on": false,
+    "humidity": 92.0,
+    "pressure": 1000.0,
+    "sensor_status": "OK",
+    "target_hum": 60.0,
+    "target_temp": 33.5,
+    "temp": 33.4
+  },
+  "lid": {
+    "moving": null,
+    "position": "closed"
+  },
+  "oxygen": {
+    "angle": 65,
+    "control_enabled": false,
+    "level": 0,
+    "measured_percent": 20.9,
+    "moving": false,
+    "sensor_status": "OK",
+    "target_percent": 25.0,
+    "voltage": 1.4
+  },
+  "photo": {
+    "on": false
+  },
+  "skin": {
+    "monitoring_enabled": true,
+    "resistance": 1355.0,
+    "status": "OK",
+    "temp": 37.0,
+    "voltage": 0.3619
+  },
+  "smoke": {
+    "status": "WARMING_UP",
+    "warmup_left": 112
+  },
+  "sos": {
+    "active": false,
+    "raised_from": null,
+    "since": null
+  },
+  "spo2": {
+    "flags": null,
+    "monitoring_enabled": false,
+    "pi": null,
+    "pleth": [],
+    "pulse": null,
+    "signal": 0,
+    "spo2": null,
+    "status": "NOT_CONNECTED",
+    "updated": null
+  },
+  "weight": {
+    "cells": [
+      780.5,
+      779.0,
+      781.2,
+      779.3
+    ],
+    "status": "OK",
+    "total": 3120.0,
+    "unit": "g"
+  }
+}
